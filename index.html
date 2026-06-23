@@ -1205,16 +1205,16 @@ footer{
     }
   }
 
-  // A api.lyrics.ovh costuma bloquear chamadas diretas do navegador (CORS) ou
-  // ficar fora do ar. Tentamos direto e, se falhar por rede/CORS, caímos num
-  // proxy público que adiciona os cabeçalhos de CORS necessários.
+  // A api.lyrics.ovh NÃO suporta CORS (confirmado na documentação oficial),
+  // então uma chamada direta do navegador sempre falha, em qualquer site.
+  // Por isso passamos sempre por um proxy que adiciona os cabeçalhos de CORS.
   const CORS_PROXIES = [
-    (url) => url, // tentativa direta primeiro
-    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
 
-  async function fetchJsonWithFallback(targetUrl, {timeoutMs = 8000, signal} = {}){
+  async function fetchJsonWithFallback(targetUrl, {timeoutMs = 6000, signal} = {}){
     let lastErr = null;
     for(const buildUrl of CORS_PROXIES){
       if(signal && signal.aborted) throw new DOMException('Aborted','AbortError');
