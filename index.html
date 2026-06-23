@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toca Aí — aprenda violão todo dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wood-dark:#241510;
+  --wood-mid:#3a2418;
+  --wood-edge:#1a0e0a;
+  --paper:#f2e4cd;
+  --paper-warm:#ecd9bb;
+  --brass:#c8923e;
+  --brass-bright:#e0ad5c;
+  --string:#d8c9a8;
+  --moss:#6b8f71;
+  --moss-bright:#8bb091;
+  --terracotta:#b5483d;
+  --terracotta-bright:#cf5d4f;
+  --ink:#2b1b12;
+  --ink-soft:#5a4636;
+
+  --font-display:'Fraunces', serif;
+  --font-mono:'Space Mono', monospace;
+  --font-body:'Inter', sans-serif;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+
+body{
+  background: var(--wood-dark);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,146,62,0.10), transparent),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 80px);
+  color: var(--paper);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+button{font-family:inherit;}
+
+/* ---------- HEADER ---------- */
+header.app-header{
+  padding: 28px 24px 0;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align:center;
+}
+.brand{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 5vw, 40px);
+  letter-spacing: -0.01em;
+  color: var(--paper);
+  margin: 0;
+}
+.brand .accent{ color: var(--brass-bright); font-style: italic; }
+.tagline{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--string);
+  opacity: 0.7;
+  margin: 6px 0 0;
+}
+
+/* ---------- STRING DIVIDER (signature element) ---------- */
+.strings-divider{
+  max-width: 920px;
+  margin: 22px auto 0;
+  padding: 0 24px;
+}
+.strings-divider svg{ width:100%; display:block; height:34px; }
+
+/* ---------- NAV (frets) ---------- */
+nav.frets{
+  max-width: 920px;
+  margin: 0 auto;
+  display:flex;
+  gap: 0;
+  padding: 0 24px;
+  position: relative;
+}
+.fret-btn{
+  flex:1;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid rgba(216,201,168,0.18);
+  color: var(--string);
+  opacity:0.65;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px 8px 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.fret-btn:hover{ opacity: 0.9; }
+.fret-btn:focus-visible{ outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+.fret-btn.active{
+  opacity: 1;
+  color: var(--brass-bright);
+  border-bottom-color: var(--brass-bright);
+}
+.fret-btn .num{
+  font-size: 11px;
+  color: var(--terracotta-bright);
+  opacity: 0.85;
+}
+.fret-btn.active .num{ color: var(--brass-bright); }
+
+/* ---------- MAIN ---------- */
+main{
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+.view{ display:none; animation: fadein 0.35s ease; }
+.view.active{ display:block; }
+@keyframes fadein{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+
+.card{
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(43,27,18,0.06);
+}
+
+/* ===================== APRENDIZADO ===================== */
+.streak-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+  background: var(--wood-mid);
+  border: 1px solid rgba(200,146,62,0.25);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.streak-info{ display:flex; align-items:center; gap:14px; }
+.streak-flame{
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight:700;
+  color: var(--brass-bright);
+  line-height:1;
+}
+.streak-label{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--string);
+  opacity:0.75;
+}
+.streak-sub{ font-size: 14px; color: var(--paper); opacity:0.9; margin-top:2px;}
+.reset-btn{
+  background: none;
+  border: 1px solid rgba(216,201,168,0.3);
+  color: var(--string);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor:pointer;
+  opacity:0.6;
+  transition: opacity 0.2s;
+}
+.reset-btn:hover{ opacity:1; }
+
+.day-grid{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.day-pip{
+  aspect-ratio: 1;
+  border-radius: 9px;
+  background: var(--wood-mid);
+  border: 1px solid rgba(200,146,62,0.2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--string);
+  opacity: 0.55;
+}
+.day-pip.done{
+  background: var(--moss);
+  border-color: var(--moss-bright);
+  color: var(--paper);
+  opacity: 1;
+}
+.day-pip.today{
+  border-color: var(--brass-bright);
+  color: var(--brass-bright);
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(200,146,62,0.25);
+}
+
+.lesson-card{
+  padding: 26px;
+  margin-bottom: 18px;
+}
+.lesson-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.lesson-eyebrow{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+.lesson-title{
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  margin: 4px 0 0;
+  color: var(--ink);
+}
+.lesson-badge{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 5px 10px;
+  border-radius: 100px;
+  white-space:nowrap;
+}
+.lesson-body p{
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 14px;
+}
+.lesson-body ul{
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+.lesson-body li{
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.chord-row{
+  display:flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.mini-diagram{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 6px;
+}
+.mini-diagram svg{ display:block; }
+.mini-diagram span{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight:700;
+  color: var(--ink);
+}
+.lesson-actions{
+  display:flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.btn{
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 20px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity .15s ease;
+}
+.btn:active{ transform: scale(0.97); }
+.btn-primary{
+  background: var(--moss);
+  color: #fff;
+}
+.btn-primary:hover{ background: var(--moss-bright); }
+.btn-primary[disabled]{
+  background: var(--ink-soft);
+  opacity: 0.5;
+  cursor: default;
+}
+.btn-ghost{
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid rgba(43,27,18,0.25);
+}
+.btn-ghost:hover{ border-color: var(--ink); }
+.done-pill{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--moss);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+}
+
+.lesson-list-title{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--string);
+  opacity:0.7;
+  margin: 36px 0 14px;
+}
+.path-row{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor:pointer;
+  transition: background 0.15s;
+}
+.path-row:hover{ background: rgba(242,228,205,0.06); }
+.path-num{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 26px; height:26px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: var(--wood-mid);
+  color: var(--string);
+  flex-shrink:0;
+  border: 1px solid rgba(200,146,62,0.25);
+}
+.path-row.complete .path-num{ background: var(--moss); color:#fff; border-color: var(--moss-bright); }
+.path-row.current .path-num{ background: var(--brass); color: var(--wood-dark); border-color: var(--brass-bright); }
+.path-name{ font-size: 14.5px; color: var(--paper); flex:1; }
+.path-row.complete .path-name{ opacity: 0.55; text-decoration: line-through; }
+.path-row.locked{ opacity: 0.4; cursor: default; }
+.path-row.locked:hover{ background:none; }
+.path-tag{
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--string);
+  opacity: 0.6;
+}
+
+/* ===================== CIFRAS ===================== */
+.song-search{
+  margin-bottom: 22px;
+}
+.song-search input{
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  background: var(--wood-mid);
+  border: 1px solid rgba(200,146,62,0.3);
+  border-radius: 11px;
+  color: var(--paper);
+}
+.song-search input::placeholder{ color: var(--string); opacity:0.6; }
+.song-search input:focus{ outline:none; border-color: var(--brass-bright); }
+
+.search-hint{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--string);
+  opacity: 0.6;
+  margin: -10px 0 22px;
+}
+.search-state{
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  text-align:center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--string);
+}
+.search-state .spinner{
+  width: 26px; height: 26px;
+  border: 3px solid rgba(200,146,62,0.25);
+  border-top-color: var(--brass-bright);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+.search-state p{ margin:0; font-size: 14px; }
+.search-state .state-title{
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--paper);
+  margin: 4px 0 0;
+}
+.search-state .state-sub{
+  font-size: 13.5px;
+  opacity: 0.7;
+  max-width: 360px;
+}
+.retry-btn{
+  margin-top: 6px;
+  background: transparent;
+  border: 1.5px solid rgba(216,201,168,0.35);
+  color: var(--string);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.retry-btn:hover{ border-color: var(--brass-bright); color: var(--brass-bright); }
+
+.song-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.song-tile{
+  background: var(--wood-mid);
+  border: 1px solid rgba(200,146,62,0.2);
+  border-radius: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+  text-align:left;
+}
+.song-tile:hover{ border-color: var(--brass-bright); transform: translateY(-2px); }
+.song-tile:focus-visible{ outline: 2px solid var(--brass-bright); }
+.song-tile-title{
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight:600;
+  color: var(--paper);
+  margin: 0 0 4px;
+}
+.song-tile-artist{
+  font-size: 13px;
+  color: var(--string);
+  opacity: 0.75;
+  margin: 0 0 10px;
+}
+.song-tile-meta{
+  display:flex;
+  gap: 8px;
+}
+.tag{
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: rgba(200,146,62,0.15);
+  color: var(--brass-bright);
+}
+
+.song-view{ padding: 30px 30px 36px; }
+.song-view-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.back-link{
+  background:none;
+  border:none;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--terracotta);
+  cursor:pointer;
+  padding: 0;
+  margin-bottom: 18px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.back-link:hover{ text-decoration: underline; }
+.song-view-title{
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight:600;
+  color: var(--ink);
+  margin:0;
+}
+.song-view-artist{
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin: 4px 0 0;
+}
+.capo-note{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: rgba(181,72,61,0.12);
+  color: var(--terracotta);
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.chord-glossary{
+  display:flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 0;
+  margin: 18px 0 8px;
+  border-top: 1px solid rgba(43,27,18,0.1);
+  border-bottom: 1px solid rgba(43,27,18,0.1);
+}
+.suggested-note{
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: rgba(200,146,62,0.12);
+  border-left: 3px solid var(--brass);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  margin: 16px 0;
+  line-height: 1.55;
+}
+.source-credit{
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  opacity: 0.65;
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(43,27,18,0.15);
+}
+.source-credit a{ color: var(--terracotta); text-decoration: none; }
+.source-credit a:hover{ text-decoration: underline; }
+.lyrics-block{
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  line-height: 2.15;
+  white-space: pre-wrap;
+  color: var(--ink);
+  margin-top: 20px;
+}
+.chord{
+  color: var(--terracotta);
+  font-weight: 700;
+}
+
+/* ===================== AFINADOR ===================== */
+.tuner-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding: 40px 24px 36px;
+  text-align:center;
+}
+.tuner-rosette{
+  width: min(280px, 80vw);
+  height: min(280px, 80vw);
+  margin-bottom: 18px;
+}
+.tuner-note{
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  line-height:1;
+}
+.tuner-freq{
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 6px 0 26px;
+}
+.tuner-status{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border-radius: 100px;
+  margin-bottom: 28px;
+}
+.tuner-status.idle{ background: rgba(43,27,18,0.08); color: var(--ink-soft); }
+.tuner-status.flat{ background: rgba(181,72,61,0.14); color: var(--terracotta); }
+.tuner-status.sharp{ background: rgba(181,72,61,0.14); color: var(--terracotta); }
+.tuner-status.intune{ background: rgba(107,143,113,0.16); color: var(--moss); }
+.mic-btn{
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight:600;
+  font-size: 15px;
+  padding: 14px 30px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display:inline-flex;
+  align-items:center;
+  gap: 10px;
+}
+.mic-btn:hover{ background: #1a100a; }
+.mic-btn.listening{ background: var(--terracotta); }
+.tuner-error{
+  font-size: 13.5px;
+  color: var(--terracotta);
+  margin-top: 14px;
+  max-width: 360px;
+}
+.string-targets{
+  display:flex;
+  gap: 10px;
+  margin-top: 32px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.string-target{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  background: rgba(43,27,18,0.06);
+  color: var(--ink-soft);
+  border: 1px solid transparent;
+}
+.string-target.active-target{
+  background: var(--brass);
+  color: var(--wood-dark);
+  border-color: var(--brass-bright);
+  font-weight: 700;
+}
+
+footer{
+  text-align:center;
+  padding: 30px 24px 50px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--string);
+  opacity: 0.5;
+}
+
+@media (max-width: 600px){
+  .fret-btn{ font-size: 11.5px; padding: 12px 4px 10px; }
+  .fret-btn span.fret-label{ display:none; }
+  .lesson-title{ font-size: 22px; }
+  .song-view{ padding: 22px 18px 28px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1 class="brand">Toca Aí<span class="accent">.</span></h1>
+  <p class="tagline">um pouco de violão, todos os dias</p>
+</header>
+
+<div class="strings-divider" aria-hidden="true">
+  <svg viewBox="0 0 920 34" preserveAspectRatio="none">
+    <line x1="0" y1="6"  x2="920" y2="6"  stroke="#d8c9a8" stroke-width="1"   opacity="0.45"/>
+    <line x1="0" y1="12" x2="920" y2="12" stroke="#d8c9a8" stroke-width="1.4" opacity="0.5"/>
+    <line x1="0" y1="18" x2="920" y2="18" stroke="#d8c9a8" stroke-width="1.8" opacity="0.55"/>
+    <line x1="0" y1="22" x2="920" y2="22" stroke="#d8c9a8" stroke-width="2.2" opacity="0.6"/>
+    <line x1="0" y1="26" x2="920" y2="26" stroke="#c8923e" stroke-width="2.6" opacity="0.65"/>
+    <line x1="0" y1="29" x2="920" y2="29" stroke="#c8923e" stroke-width="3"   opacity="0.7"/>
+  </svg>
+</div>
+
+<nav class="frets" role="tablist" aria-label="Seções do app">
+  <button class="fret-btn active" data-view="aprender" role="tab" aria-selected="true">
+    <span class="num">I</span><span class="fret-label">Aprender</span>
+  </button>
+  <button class="fret-btn" data-view="cifras" role="tab" aria-selected="false">
+    <span class="num">II</span><span class="fret-label">Cifras</span>
+  </button>
+  <button class="fret-btn" data-view="afinador" role="tab" aria-selected="false">
+    <span class="num">III</span><span class="fret-label">Afinador</span>
+  </button>
+</nav>
+
+<main>
+
+  <!-- ===================== VIEW: APRENDER ===================== -->
+  <section class="view active" id="view-aprender">
+
+    <div class="streak-bar">
+      <div class="streak-info">
+        <div class="streak-flame" id="streak-count">0</div>
+        <div>
+          <div class="streak-label">dias seguidos</div>
+          <div class="streak-sub" id="streak-sub">comece sua sequência hoje</div>
+        </div>
+      </div>
+      <button class="reset-btn" id="reset-progress">reiniciar progresso</button>
+    </div>
+
+    <div class="day-grid" id="day-grid" aria-label="Últimos 7 dias"></div>
+
+    <div id="lesson-container"></div>
+
+    <div class="lesson-list-title">trilha completa</div>
+    <div id="path-list"></div>
+
+  </section>
+
+  <!-- ===================== VIEW: CIFRAS ===================== -->
+  <section class="view" id="view-cifras">
+
+    <div id="song-list-view">
+      <div class="song-search">
+        <input type="text" id="song-search-input" placeholder="Digite uma música ou artista e aperte Enter…" autocomplete="off">
+      </div>
+      <p class="search-hint" id="search-hint">Busque por título ou artista — por exemplo, "Trem-Bala" ou "Legião Urbana".</p>
+      <div class="song-grid" id="song-grid"></div>
+    </div>
+
+    <div id="song-detail-view" style="display:none;">
+      <div class="card song-view" id="song-detail-content"></div>
+    </div>
+
+  </section>
+
+  <!-- ===================== VIEW: AFINADOR ===================== -->
+  <section class="view" id="view-afinador">
+    <div class="card tuner-wrap">
+
+      <div class="tuner-rosette" id="rosette-container"></div>
+
+      <p class="tuner-note" id="tuner-note">—</p>
+      <p class="tuner-freq" id="tuner-freq">aguardando som…</p>
+      <div class="tuner-status idle" id="tuner-status">parado</div>
+
+      <button class="mic-btn" id="mic-toggle">
+        <span id="mic-icon">🎙️</span>
+        <span id="mic-label">Ativar microfone</span>
+      </button>
+      <p class="tuner-error" id="tuner-error"></p>
+
+      <div class="string-targets" id="string-targets"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>feito para quem quer tirar o violão da parede hoje</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     NAVIGATION
+  ============================================================ */
+  const fretBtns = document.querySelectorAll('.fret-btn');
+  const views = {
+    aprender: document.getElementById('view-aprender'),
+    cifras: document.getElementById('view-cifras'),
+    afinador: document.getElementById('view-afinador'),
+  };
+  fretBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      fretBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+      Object.values(views).forEach(v => v.classList.remove('active'));
+      views[btn.dataset.view].classList.add('active');
+      if (btn.dataset.view !== 'afinador') stopTuner();
+    });
+  });
+
+  /* ============================================================
+     STORAGE HELPERS (in-memory fallback if localStorage blocked)
+  ============================================================ */
+  let memoryStore = {};
+  function storageGet(key, fallback){
+    try{
+      const v = localStorage.getItem(key);
+      return v === null ? fallback : JSON.parse(v);
+    }catch(e){
+      return (key in memoryStore) ? memoryStore[key] : fallback;
+    }
+  }
+  function storageSet(key, value){
+    try{
+      localStorage.setItem(key, JSON.stringify(value));
+    }catch(e){
+      memoryStore[key] = value;
+    }
+  }
+
+  /* ============================================================
+     LESSON DATA — trilha de aprendizado
+  ============================================================ */
+  function chordSVG(name, frets, fingers){
+    // frets: array of 6 values for strings E A D G B e (low to high), 'x' = não toca, 0 = solto
+    const w = 90, h = 100;
+    const left = 14, right = 76, top = 18, bottom = 92;
+    const stringX = i => left + (right-left)*i/5;
+    const fretY = i => top + (bottom-top)*i/4;
+    let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+    svg += `<rect x="0" y="0" width="${w}" height="${h}" fill="none"/>`;
+    // nut
+    svg += `<rect x="${left}" y="${top-3}" width="${right-left}" height="4" fill="#2b1b12"/>`;
+    // frets
+    for(let i=0;i<=4;i++){
+      svg += `<line x1="${left}" y1="${fretY(i)}" x2="${right}" y2="${fretY(i)}" stroke="#bda988" stroke-width="1.2"/>`;
+    }
+    // strings
+    for(let i=0;i<6;i++){
+      svg += `<line x1="${stringX(i)}" y1="${top-3}" x2="${stringX(i)}" y2="${bottom}" stroke="#5a4636" stroke-width="1.3"/>`;
+    }
+    // markers
+    frets.forEach((f,i)=>{
+      const x = stringX(i);
+      if(f === 'x'){
+        svg += `<text x="${x}" y="${top-7}" font-size="9" text-anchor="middle" fill="#b5483d" font-family="monospace">x</text>`;
+      } else if(f === 0){
+        svg += `<circle cx="${x}" cy="${top-9}" r="3.4" fill="none" stroke="#6b8f71" stroke-width="1.6"/>`;
+      } else {
+        const y = fretY(f-1) - (bottom-top)/4/2;
+        svg += `<circle cx="${x}" cy="${y}" r="6" fill="#c8923e"/>`;
+        if(fingers && fingers[i]){
+          svg += `<text x="${x}" y="${y+3}" font-size="8" text-anchor="middle" fill="#241510" font-family="monospace" font-weight="bold">${fingers[i]}</text>`;
+        }
+      }
+    });
+    svg += `</svg>`;
+    return svg;
+  }
+
+  const CHORDS = {
+    'Em': {frets:[0,2,2,0,0,0], fingers:{1:'2',2:'3'}},
+    'Am': {frets:['x',0,2,2,1,0], fingers:{2:'2',3:'3',4:'1'}},
+    'C':  {frets:['x',3,2,0,1,0], fingers:{1:'3',2:'2',4:'1'}},
+    'D':  {frets:['x','x',0,2,3,2], fingers:{3:'1',4:'3',5:'2'}},
+    'G':  {frets:[3,2,0,0,0,3], fingers:{0:'2',1:'1',5:'3'}},
+    'Dm': {frets:['x','x',0,2,3,1], fingers:{3:'2',4:'3',5:'1'}},
+    'E':  {frets:[0,2,2,1,0,0], fingers:{1:'2',2:'3',3:'1'}},
+    'A':  {frets:['x',0,2,2,2,0], fingers:{2:'1',3:'2',4:'3'}},
+  };
+
+  function miniChordHTML(name){
+    const c = CHORDS[name];
+    if(!c) return '';
+    return `<div class="mini-diagram">${chordSVG(name, c.frets, c.fingers)}<span>${name}</span></div>`;
+  }
+
+  const LESSONS = [
+    {
+      title: "Conhecendo o violão",
+      tag: "fundamentos",
+      body: `
+        <p>Antes de tocar qualquer acorde, vale a pena entender o instrumento que você tem nas mãos. O violão tem seis cordas, numeradas da mais grossa (6ª, Mi grave) à mais fina (1ª, Mi agudo).</p>
+        <ul>
+          <li><strong>Tarraxas:</strong> ajustam a tensão de cada corda — é nelas que o afinador atua.</li>
+          <li><strong>Braço e trastes:</strong> cada divisão metálica no braço é um "traste". Apertar a corda entre dois trastes muda a nota.</li>
+          <li><strong>Casa:</strong> o espaço entre dois trastes. "Primeira casa" = entre o trasteiro e o primeiro traste.</li>
+        </ul>
+        <p>Hoje o objetivo é simples: segure o violão de forma confortável, encoste os dedos nas cordas e sinta a tensão. Sem pressa.</p>
+      `,
+    },
+    {
+      title: "Afinando o violão",
+      tag: "fundamentos",
+      body: `
+        <p>Um violão desafinado desanima qualquer começo de jornada. Use a aba <strong>Afinador</strong> deste app: ative o microfone e toque cada corda solta, uma por vez.</p>
+        <p>A afinação padrão, da corda mais grossa para a mais fina, é:</p>
+        <ul>
+          <li>6ª corda — <strong>Mi (E)</strong></li>
+          <li>5ª corda — <strong>Si... não, Lá (A)</strong></li>
+          <li>4ª corda — <strong>Ré (D)</strong></li>
+          <li>3ª corda — <strong>Sol (G)</strong></li>
+          <li>2ª corda — <strong>Si (B)</strong></li>
+          <li>1ª corda — <strong>Mi (E)</strong></li>
+        </ul>
+        <p>Afine sempre subindo a corda até a nota certa — se passar, abaixe um pouco e suba de novo. Isso mantém a tensão mais estável.</p>
+      `,
+    },
+    {
+      title: "Seu primeiro acorde: Em",
+      tag: "acordes",
+      body: `
+        <p>Mi menor (Em) é o acorde mais generoso para começar: usa só dois dedos e som encaixa em centenas de músicas.</p>
+        <div class="chord-row">${miniChordHTML('Em')}</div>
+        <p>Dedo 2 na 5ª corda, 2ª casa. Dedo 3 na 4ª corda, 2ª casa. As demais cordas tocam soltas. Toque uma corda por vez, depois tente todas juntas com uma palhetada de cima para baixo.</p>
+      `,
+    },
+    {
+      title: "Acorde de Am (Lá menor)",
+      tag: "acordes",
+      body: `
+        <p>Am compartilha posição com Em — ótimo para treinar a troca entre os dois.</p>
+        <div class="chord-row">${miniChordHTML('Am')}</div>
+        <p>Dedo 1 na 2ª corda, 1ª casa. Dedo 2 na 4ª corda, 2ª casa. Dedo 3 na 3ª corda, 2ª casa. A 5ª corda toca solta, a 1ª corda também.</p>
+        <p>Pratique alternando Em → Am, Em → Am, em compasso lento, até a troca ficar fluida.</p>
+      `,
+    },
+    {
+      title: "Acorde de C (Dó maior)",
+      tag: "acordes",
+      body: `
+        <p>C exige um pouco mais de abertura entre os dedos, mas é essencial — aparece em quase todo repertório iniciante.</p>
+        <div class="chord-row">${miniChordHTML('C')}</div>
+        <p>Dedo 1 na 2ª corda, 1ª casa. Dedo 2 na 4ª corda, 2ª casa. Dedo 3 na 5ª corda, 3ª casa. A 6ª corda não toca.</p>
+      `,
+    },
+    {
+      title: "Acorde de G (Sol maior)",
+      tag: "acordes",
+      body: `
+        <p>G usa três dedos espalhados — é normal levar alguns dias para os dedos "decorarem" a posição.</p>
+        <div class="chord-row">${miniChordHTML('G')}</div>
+        <p>Dedo 2 na 6ª corda, 3ª casa. Dedo 1 na 5ª corda, 2ª casa. Dedo 3 na 1ª corda, 3ª casa. As cordas do meio tocam soltas.</p>
+      `,
+    },
+    {
+      title: "Sequência Em – C – G – D",
+      tag: "prática",
+      body: `
+        <p>Com quatro acordes na mão você já cobre uma quantidade enorme de músicas populares. Hoje o foco é resistência: trocar entre eles sem travar.</p>
+        <div class="chord-row">${miniChordHTML('Em')}${miniChordHTML('C')}${miniChordHTML('G')}${miniChordHTML('D')}</div>
+        <p>Toque cada acorde por 4 tempos, na sequência Em → C → G → D, repetindo em loop. Use um metrônomo bem lento se tiver — velocidade vem depois, precisão vem primeiro.</p>
+      `,
+    },
+    {
+      title: "Ritmo: a palhetada básica",
+      tag: "ritmo",
+      body: `
+        <p>Acorde sem ritmo é só um acúmulo de notas. A palhetada mais comum para começar é baixo-baixo-cima-cima-baixo-cima, contada como "1 2 e 3 e 4".</p>
+        <ul>
+          <li>Mantenha o pulso com o pé batendo no tempo.</li>
+          <li>O movimento vem do pulso, não do braço inteiro.</li>
+          <li>Erre rítmico antes de tentar acertar técnico — um ritmo errado mas constante já soa melhor que um certo e instável.</li>
+        </ul>
+        <p>Aplique essa palhetada sobre o acorde de Em primeiro, depois tente alternar com Am.</p>
+      `,
+    },
+  ];
+
+  const TOTAL_LESSONS = LESSONS.length;
+
+  /* ============================================================
+     PROGRESS STATE
+  ============================================================ */
+  function todayKey(d){
+    d = d || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  let progress = storageGet('violao_progress', {
+    completedLessons: [],   // indices of LESSONS completed
+    daysDone: [],           // array of date-key strings (YYYY-MM-DD)
+    currentLesson: 0
+  });
+
+  function saveProgress(){ storageSet('violao_progress', progress); }
+
+  function markTodayDone(){
+    const key = todayKey();
+    if(!progress.daysDone.includes(key)){
+      progress.daysDone.push(key);
+      saveProgress();
+    }
+  }
+
+  function computeStreak(){
+    if(progress.daysDone.length === 0) return 0;
+    const set = new Set(progress.daysDone);
+    let streak = 0;
+    let cursor = new Date();
+    // if today not done yet, streak counts up to yesterday
+    if(!set.has(todayKey(cursor))){
+      cursor.setDate(cursor.getDate()-1);
+    }
+    while(set.has(todayKey(cursor))){
+      streak++;
+      cursor.setDate(cursor.getDate()-1);
+    }
+    return streak;
+  }
+
+  function renderDayGrid(){
+    const grid = document.getElementById('day-grid');
+    grid.innerHTML = '';
+    const labels = ['D','S','T','Q','Q','S','S'];
+    const today = new Date();
+    const days = [];
+    for(let i=6;i>=0;i--){
+      const d = new Date(today);
+      d.setDate(d.getDate()-i);
+      days.push(d);
+    }
+    days.forEach(d => {
+      const key = todayKey(d);
+      const pip = document.createElement('div');
+      pip.className = 'day-pip';
+      const isToday = key === todayKey(today);
+      if(progress.daysDone.includes(key)) pip.classList.add('done');
+      if(isToday) pip.classList.add('today');
+      pip.textContent = progress.daysDone.includes(key) ? '✓' : labels[d.getDay()];
+      pip.title = d.toLocaleDateString('pt-BR');
+      grid.appendChild(pip);
+    });
+  }
+
+  function renderStreak(){
+    const streak = computeStreak();
+    document.getElementById('streak-count').textContent = streak;
+    const sub = document.getElementById('streak-sub');
+    if(streak === 0){
+      sub.textContent = 'comece sua sequência hoje';
+    } else {
+      sub.textContent = `continue praticando para manter a sequência`;
+    }
+  }
+
+  function renderLessonCard(){
+    const idx = Math.min(progress.currentLesson, TOTAL_LESSONS - 1);
+    const lesson = LESSONS[idx];
+    const isDone = progress.completedLessons.includes(idx);
+    const allDone = progress.completedLessons.length >= TOTAL_LESSONS;
+    const container = document.getElementById('lesson-container');
+
+    if(allDone){
+      container.innerHTML = `
+        <div class="card lesson-card">
+          <div class="lesson-eyebrow">trilha concluída</div>
+          <h2 class="lesson-title">Você terminou todas as lições! 🎉</h2>
+          <p style="margin-top:14px; color:var(--ink-soft); font-size:15px; line-height:1.6;">
+            Revise qualquer lição na lista abaixo, explore as cifras na aba <strong>Cifras</strong>, ou volte aqui amanhã — repetição é o que fixa os movimentos na mão.
+          </p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card lesson-card">
+        <div class="lesson-head">
+          <div>
+            <div class="lesson-eyebrow">${lesson.tag} · lição ${idx+1} de ${TOTAL_LESSONS}</div>
+            <h2 class="lesson-title">${lesson.title}</h2>
+          </div>
+          <div class="lesson-badge">dia ${idx+1}</div>
+        </div>
+        <div class="lesson-body">${lesson.body}</div>
+        <div class="lesson-actions">
+          ${isDone
+            ? `<span class="done-pill">✓ concluída hoje</span>`
+            : `<button class="btn btn-primary" id="complete-btn">Marcar como concluída</button>`
+          }
+          ${idx < TOTAL_LESSONS - 1
+            ? `<button class="btn btn-ghost" id="next-preview-btn">Ver próxima lição →</button>`
+            : ''
+          }
+        </div>
+      </div>
+    `;
+
+    const completeBtn = document.getElementById('complete-btn');
+    if(completeBtn){
+      completeBtn.addEventListener('click', () => {
+        if(!progress.completedLessons.includes(idx)) progress.completedLessons.push(idx);
+        markTodayDone();
+        if(idx === progress.currentLesson && idx < TOTAL_LESSONS - 1){
+          progress.currentLesson = idx + 1;
+        }
+        saveProgress();
+        renderAll();
+      });
+    }
+    const nextBtn = document.getElementById('next-preview-btn');
+    if(nextBtn){
+      nextBtn.addEventListener('click', () => {
+        progress.currentLesson = Math.min(idx+1, TOTAL_LESSONS-1);
+        saveProgress();
+        renderAll();
+      });
+    }
+  }
+
+  function renderPathList(){
+    const list = document.getElementById('path-list');
+    list.innerHTML = '';
+    LESSONS.forEach((lesson, i) => {
+      const isComplete = progress.completedLessons.includes(i);
+      const isCurrent = i === progress.currentLesson && !isComplete;
+      const isLocked = i > progress.currentLesson && !isComplete;
+      const row = document.createElement('div');
+      row.className = 'path-row' + (isComplete?' complete':'') + (isCurrent?' current':'') + (isLocked?' locked':'');
+      row.innerHTML = `
+        <div class="path-num">${isComplete ? '✓' : i+1}</div>
+        <div class="path-name">${lesson.title}</div>
+        <div class="path-tag">${lesson.tag}</div>
+      `;
+      if(!isLocked){
+        row.addEventListener('click', () => {
+          progress.currentLesson = i;
+          saveProgress();
+          renderAll();
+          document.getElementById('lesson-container').scrollIntoView({behavior:'smooth', block:'start'});
+        });
+      }
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('reset-progress').addEventListener('click', () => {
+    if(confirm('Isso vai apagar sua sequência e lições concluídas. Continuar?')){
+      progress = {completedLessons:[], daysDone:[], currentLesson:0};
+      saveProgress();
+      renderAll();
+    }
+  });
+
+  function renderAll(){
+    renderDayGrid();
+    renderStreak();
+    renderLessonCard();
+    renderPathList();
+  }
+  renderAll();
+
+  /* ============================================================
+     CIFRAS — busca real de letras via lyrics.ovh + acordes sugeridos
+     A API lyrics.ovh (https://github.com/NTag/lyrics.ovh) é aberta,
+     gratuita e sem necessidade de chave, mas só devolve a LETRA da
+     música. Não existe hoje uma API pública e estável que devolva
+     a cifra oficial (acordes posicionados) de uma gravação específica
+     — por isso os acordes abaixo são uma SUGESTÃO de progressão
+     harmônica simples para acompanhar a letra, não a cifra oficial.
+  ============================================================ */
+  const LYRICS_API = 'https://api.lyrics.ovh';
+
+  // Progressões de acordes comuns (campo harmônico) usadas para sugestão.
+  const PROGRESSION_POOLS = [
+    ["G","Em","C","D"],
+    ["C","G","Am","F"],
+    ["Em","C","D","G"],
+    ["Am","F","C","G"],
+    ["D","A","Bm","G"],
+    ["E","A","B","C#m"],
+  ];
+
+  function hashString(str){
+    let h = 0;
+    for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+
+  // Distribui os acordes da progressão escolhida ao longo das linhas da letra,
+  // de forma determinística (mesma música = mesma sugestão sempre).
+  function buildSuggestedChordLyrics(rawLyrics, seedKey){
+    const pool = PROGRESSION_POOLS[hashString(seedKey) % PROGRESSION_POOLS.length];
+    const lines = rawLyrics.split('\n');
+    let chordIdx = 0;
+    const outLines = lines.map(line => {
+      const trimmed = line.trim();
+      if(trimmed.length === 0) return '';
+      const chord = pool[chordIdx % pool.length];
+      chordIdx++;
+      return `[${chord}]${line}`;
+    });
+    return {text: outLines.join('\n'), chordsUsed: pool};
+  }
+
+  let lastResults = [];
+  const lyricsCache = new Map(); // cache de letras já buscadas (mais rapidez ao voltar pra mesma música)
+  let currentSearchController = null;
+  let currentOpenController = null;
+  let searchDebounceTimer = null;
+
+  // Faz fetch com timeout, pra não ficar "pendurado" esperando o serviço externo
+  async function fetchWithTimeout(url, {timeoutMs = 7000, signal} = {}){
+    const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    if(signal) signal.addEventListener('abort', onAbort);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try{
+      const res = await fetch(url, {signal: controller.signal});
+      return res;
+    } finally {
+      clearTimeout(timer);
+      if(signal) signal.removeEventListener('abort', onAbort);
+    }
+  }
+
+  // A api.lyrics.ovh costuma bloquear chamadas diretas do navegador (CORS) ou
+  // ficar fora do ar. Tentamos direto e, se falhar por rede/CORS, caímos num
+  // proxy público que adiciona os cabeçalhos de CORS necessários.
+  const CORS_PROXIES = [
+    (url) => url, // tentativa direta primeiro
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  ];
+
+  async function fetchJsonWithFallback(targetUrl, {timeoutMs = 8000, signal} = {}){
+    let lastErr = null;
+    for(const buildUrl of CORS_PROXIES){
+      if(signal && signal.aborted) throw new DOMException('Aborted','AbortError');
+      try{
+        const res = await fetchWithTimeout(buildUrl(targetUrl), {timeoutMs, signal});
+        if(!res.ok){ lastErr = new Error('status-' + res.status); continue; }
+        const data = await res.json();
+        return data;
+      }catch(err){
+        if(err.name === 'AbortError') throw err;
+        lastErr = err;
+      }
+    }
+    throw lastErr || new Error('fetch-failed');
+  }
+
+  // Gera variações do nome (sem parênteses, sem "feat.", sem acentos) pra tentar
+  // de novo quando a busca exata falha — resolve boa parte dos erros ao abrir música.
+  function nameVariants(str){
+    const base = (str || '').trim();
+    const variants = new Set();
+    variants.add(base);
+    const noParens = base.replace(/[\(\[][^\)\]]*[\)\]]/g, '').trim();
+    if(noParens) variants.add(noParens);
+    const noFeat = noParens.replace(/\b(feat\.?|ft\.?|featuring|part\.?|com)\b.*$/i, '').trim();
+    if(noFeat) variants.add(noFeat);
+    const noAccents = noFeat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    if(noAccents) variants.add(noAccents);
+    return Array.from(variants).filter(Boolean);
+  }
+
+  function setSongAreaState(html){
+    document.getElementById('song-grid').innerHTML = html;
+  }
+
+  function renderEmptyState(){
+    setSongAreaState(`
+      <div class="search-state" style="grid-column:1/-1;">
+        <p class="state-title">Busque uma música</p>
+        <p class="state-sub">Digite o nome de uma música ou artista acima e aperte Enter.</p>
+      </div>
+    `);
+  }
+
+  function renderLoadingState(query){
+    setSongAreaState(`
+      <div class="search-state" style="grid-column:1/-1;">
+        <div class="spinner"></div>
+        <p class="state-sub">Procurando por "${query}"…</p>
+      </div>
+    `);
+  }
+
+  function renderErrorState(query, message){
+    setSongAreaState(`
+      <div class="search-state" style="grid-column:1/-1;">
+        <p class="state-title">Não foi possível buscar agora</p>
+        <p class="state-sub">${message}</p>
+        <button class="retry-btn" id="retry-search">Tentar de novo</button>
+      </div>
+    `);
+    const retry = document.getElementById('retry-search');
+    if(retry) retry.addEventListener('click', () => runSearch(query));
+  }
+
+  function renderNoResultsState(query){
+    setSongAreaState(`
+      <div class="search-state" style="grid-column:1/-1;">
+        <p class="state-title">Nada encontrado</p>
+        <p class="state-sub">Nenhum resultado para "${query}". Tente o nome do artista junto com a música, em português ou inglês.</p>
+      </div>
+    `);
+  }
+
+  function renderResultsGrid(results, query){
+    const grid = document.getElementById('song-grid');
+    grid.innerHTML = '';
+    results.forEach((item, i) => {
+      const tile = document.createElement('button');
+      tile.className = 'song-tile';
+      tile.innerHTML = `
+        <p class="song-tile-title">${item.title}</p>
+        <p class="song-tile-artist">${item.artist}</p>
+        <div class="song-tile-meta"><span class="tag">ver letra e acordes</span></div>
+      `;
+      tile.addEventListener('click', () => openSong(item));
+      grid.appendChild(tile);
+    });
+  }
+
+  async function runSearch(query){
+    const q = (query || '').trim();
+    if(q.length === 0){ renderEmptyState(); return; }
+
+    // cancela uma busca anterior ainda em andamento, evitando resultados
+    // "atrasados" sobrescreverem a busca mais recente
+    if(currentSearchController) currentSearchController.abort();
+    const controller = new AbortController();
+    currentSearchController = controller;
+
+    renderLoadingState(q);
+    try{
+      const data = await fetchJsonWithFallback(`${LYRICS_API}/suggest/${encodeURIComponent(q)}`, {timeoutMs: 8000, signal: controller.signal});
+      const items = (data.data || []).map(d => ({
+        title: d.title,
+        artist: d.artist && d.artist.name ? d.artist.name : '',
+      })).filter(d => d.title);
+
+      if(controller.signal.aborted) return; // já existe uma busca mais nova rodando
+      lastResults = items;
+      if(items.length === 0){ renderNoResultsState(q); return; }
+      renderResultsGrid(items, q);
+    }catch(err){
+      if(err.name === 'AbortError' && controller.signal.aborted && currentSearchController !== controller) return; // substituída por busca mais nova, ignora silenciosamente
+      const timedOut = err.name === 'AbortError';
+      renderErrorState(q, timedOut
+        ? 'O serviço de letras demorou demais para responder. Tente novamente.'
+        : 'O serviço de letras pode estar temporariamente indisponível. Verifique sua conexão ou tente novamente em alguns instantes.');
+    }
+  }
+
+  function formatLyrics(raw){
+    return raw.replace(/\[([^\]]+)\]/g, '<span class="chord">$1</span>');
+  }
+
+  async function openSong(item){
+    document.getElementById('song-list-view').style.display = 'none';
+    document.getElementById('song-detail-view').style.display = 'block';
+    const el = document.getElementById('song-detail-content');
+    el.innerHTML = `
+      <button class="back-link" id="back-to-list">← voltar para a busca</button>
+      <div class="search-state">
+        <div class="spinner"></div>
+        <p class="state-sub">Buscando a letra de "${item.title}"…</p>
+      </div>
+    `;
+    document.getElementById('back-to-list').addEventListener('click', closeSong);
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+
+    if(currentOpenController) currentOpenController.abort();
+    const controller = new AbortController();
+    currentOpenController = controller;
+
+    const cacheKey = (item.artist + '|' + item.title).toLowerCase();
+
+    try{
+      let lyrics = lyricsCache.get(cacheKey);
+
+      if(!lyrics){
+        // tenta variações do artista/título (sem parênteses, "feat.", acentos)
+        // porque a API costuma falhar com o nome "completo" vindo da busca
+        const artistVariants = nameVariants(item.artist);
+        const titleVariants = nameVariants(item.title);
+        let lastError = null;
+
+        outer:
+        for(const artist of artistVariants){
+          for(const title of titleVariants){
+            try{
+              const data = await fetchJsonWithFallback(
+                `${LYRICS_API}/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,
+                {timeoutMs: 8000, signal: controller.signal}
+              );
+              if(!data.lyrics){ lastError = new Error('no-lyrics'); continue; }
+              lyrics = data.lyrics;
+              break outer;
+            }catch(err){
+              if(err.name === 'AbortError') throw err;
+              lastError = err;
+            }
+          }
+        }
+
+        if(!lyrics) throw lastError || new Error('no-lyrics');
+        lyricsCache.set(cacheKey, lyrics);
+      }
+
+      if(controller.signal.aborted) return;
+
+      const {text, chordsUsed} = buildSuggestedChordLyrics(lyrics, item.artist + item.title);
+
+      el.innerHTML = `
+        <button class="back-link" id="back-to-list">← voltar para a busca</button>
+        <div class="song-view-head">
+          <div>
+            <h2 class="song-view-title">${item.title}</h2>
+            <p class="song-view-artist">${item.artist}</p>
+          </div>
+        </div>
+        <div class="chord-glossary">
+          ${chordsUsed.map(c => miniChordHTML(c) || `<span class="tag">${c}</span>`).join('')}
+        </div>
+        <p class="suggested-note">Os acordes acima são uma sugestão de progressão para acompanhar a letra, gerada por este app — não é a cifra oficial dessa gravação. Ajuste o tom e os acordes conforme o que você ouvir na música original.</p>
+        <div class="lyrics-block">${formatLyrics(text)}</div>
+        <p class="source-credit">Letra via <a href="https://lyrics.ovh" target="_blank" rel="noopener">lyrics.ovh</a></p>
+      `;
+      document.getElementById('back-to-list').addEventListener('click', closeSong);
+    }catch(err){
+      if(controller.signal.aborted) return;
+      const timedOut = err && err.name === 'AbortError';
+      el.innerHTML = `
+        <button class="back-link" id="back-to-list">← voltar para a busca</button>
+        <div class="search-state">
+          <p class="state-title">Não encontramos a letra dessa música</p>
+          <p class="state-sub">${timedOut
+            ? 'O serviço de letras demorou demais para responder. Tente de novo em alguns instantes.'
+            : 'A fonte de letras pode não ter essa faixa, ou o serviço está instável agora. Tente outra música ou volte a buscar em alguns minutos.'}</p>
+          <button class="retry-btn" id="retry-open">Tentar de novo</button>
+        </div>
+      `;
+      document.getElementById('back-to-list').addEventListener('click', closeSong);
+      const retry = document.getElementById('retry-open');
+      if(retry) retry.addEventListener('click', () => openSong(item));
+    }
+  }
+
+  function closeSong(){
+    document.getElementById('song-detail-view').style.display = 'none';
+    document.getElementById('song-list-view').style.display = 'block';
+  }
+
+  const songSearchInput = document.getElementById('song-search-input');
+  songSearchInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      clearTimeout(searchDebounceTimer);
+      runSearch(songSearchInput.value);
+    }
+  });
+  songSearchInput.addEventListener('input', () => {
+    clearTimeout(searchDebounceTimer);
+    const value = songSearchInput.value;
+    if(value.trim().length === 0){ renderEmptyState(); return; }
+    // espera o usuário parar de digitar por um instante antes de buscar,
+    // assim a busca começa sozinha sem precisar apertar Enter
+    searchDebounceTimer = setTimeout(() => runSearch(value), 450);
+  });
+
+  renderEmptyState();
+
+
+  /* ============================================================
+     AFINADOR — pitch detection via Web Audio API
+  ============================================================ */
+  const STRING_TARGETS = [
+    {note:'E2', freq:82.41,  label:'6ª — Mi'},
+    {note:'A2', freq:110.00, label:'5ª — Lá'},
+    {note:'D3', freq:146.83, label:'4ª — Ré'},
+    {note:'G3', freq:196.00, label:'3ª — Sol'},
+    {note:'B3', freq:246.94, label:'2ª — Si'},
+    {note:'E4', freq:329.63, label:'1ª — Mi'},
+  ];
+
+  function renderStringTargets(activeFreq){
+    const wrap = document.getElementById('string-targets');
+    wrap.innerHTML = '';
+    STRING_TARGETS.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'string-target';
+      if(activeFreq && Math.abs(closestStringDiff(activeFreq, t.freq)) < 0.5){
+        el.classList.add('active-target');
+      }
+      el.textContent = t.label;
+      wrap.appendChild(el);
+    });
+  }
+  function closestStringDiff(freq, target){
+    // returns 0 if this target is the nearest match to freq, else large number
+    let nearest = STRING_TARGETS[0].freq, dist = Infinity;
+    STRING_TARGETS.forEach(t => {
+      const d = Math.abs(Math.log2(freq/t.freq));
+      if(d < dist){ dist = d; nearest = t.freq; }
+    });
+    return nearest === target ? 0 : 999;
+  }
+  renderStringTargets(null);
+
+  function drawRosette(){
+    const wrap = document.getElementById('rosette-container');
+    wrap.innerHTML = `
+      <svg viewBox="0 0 200 200" width="100%" height="100%">
+        <circle cx="100" cy="100" r="92" fill="none" stroke="#5a4636" stroke-width="2" opacity="0.15"/>
+        <circle cx="100" cy="100" r="78" fill="none" stroke="#c8923e" stroke-width="2" stroke-dasharray="3 5" opacity="0.5"/>
+        <!-- tick marks -->
+        <g id="tuner-ticks"></g>
+        <!-- needle -->
+        <line id="tuner-needle" x1="100" y1="100" x2="100" y2="34" stroke="#b5483d" stroke-width="3" stroke-linecap="round" transform="rotate(0 100 100)"/>
+        <circle cx="100" cy="100" r="7" fill="#241510"/>
+        <circle cx="100" cy="100" r="3" fill="#c8923e"/>
+      </svg>
+    `;
+    const ticksGroup = document.getElementById('tuner-ticks');
+    let ticksHTML = '';
+    for(let i=-5;i<=5;i++){
+      const angle = i * 9; // degrees, -45 to 45
+      const rad = (angle-90) * Math.PI/180;
+      const r1 = 78, r2 = i % 5 === 0 ? 66 : 71;
+      const x1 = 100 + r1*Math.cos(rad), y1 = 100 + r1*Math.sin(rad);
+      const x2 = 100 + r2*Math.cos(rad), y2 = 100 + r2*Math.sin(rad);
+      const color = i === 0 ? '#6b8f71' : '#5a4636';
+      ticksHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${i===0?3:1.5}" opacity="${i===0?0.9:0.4}"/>`;
+    }
+    ticksGroup.innerHTML = ticksHTML;
+  }
+  drawRosette();
+
+  let audioCtx = null;
+  let analyser = null;
+  let mediaStream = null;
+  let rafId = null;
+  let listening = false;
+
+  const micBtn = document.getElementById('mic-toggle');
+  const micLabel = document.getElementById('mic-label');
+  const micIcon = document.getElementById('mic-icon');
+  const tunerNote = document.getElementById('tuner-note');
+  const tunerFreq = document.getElementById('tuner-freq');
+  const tunerStatus = document.getElementById('tuner-status');
+  const tunerError = document.getElementById('tuner-error');
+  const tunerNeedle = () => document.getElementById('tuner-needle');
+
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function freqToNote(freq){
+    const midi = 69 + 12 * Math.log2(freq/440);
+    const rounded = Math.round(midi);
+    const name = NOTE_NAMES[((rounded % 12)+12)%12];
+    const octave = Math.floor(rounded/12) - 1;
+    const refFreq = 440 * Math.pow(2,(rounded-69)/12);
+    const cents = 1200 * Math.log2(freq/refFreq);
+    return {name: name+octave, cents};
+  }
+
+  // Autocorrelation pitch detection
+  function autoCorrelate(buf, sampleRate){
+    const SIZE = buf.length;
+    let rms = 0;
+    for(let i=0;i<SIZE;i++){ rms += buf[i]*buf[i]; }
+    rms = Math.sqrt(rms/SIZE);
+    if(rms < 0.01) return -1; // too quiet
+
+    let r1=0, r2=SIZE-1, thresh=0.2;
+    for(let i=0;i<SIZE/2;i++){ if(Math.abs(buf[i]) < thresh){ r1=i; break; } }
+    for(let i=1;i<SIZE/2;i++){ if(Math.abs(buf[SIZE-i]) < thresh){ r2=SIZE-i; break; } }
+    const trimmed = buf.slice(r1, r2);
+    const newSize = trimmed.length;
+
+    const c = new Array(newSize).fill(0);
+    for(let lag=0; lag<newSize; lag++){
+      let sum = 0;
+      for(let i=0;i<newSize-lag;i++){ sum += trimmed[i]*trimmed[i+lag]; }
+      c[lag] = sum;
+    }
+    let d = 0; while(d < newSize-1 && c[d] > c[d+1]) d++;
+    let maxVal=-1, maxPos=-1;
+    for(let i=d;i<newSize;i++){
+      if(c[i] > maxVal){ maxVal = c[i]; maxPos = i; }
+    }
+    let T0 = maxPos;
+    if(T0 <= 0) return -1;
+    // parabolic interpolation
+    const x1 = c[T0-1]||0, x2 = c[T0], x3 = c[T0+1]||0;
+    const a = (x1 + x3 - 2*x2)/2, b = (x3 - x1)/2;
+    if(a) T0 = T0 - b/(2*a);
+    return sampleRate/T0;
+  }
+
+  function updateTunerUI(freq){
+    if(freq < 0 || !isFinite(freq) || freq < 60 || freq > 1000){
+      tunerNote.textContent = '—';
+      tunerFreq.textContent = 'aguardando som…';
+      setStatus('idle','parado');
+      setNeedle(0);
+      renderStringTargets(null);
+      return;
+    }
+    const {name, cents} = freqToNote(freq);
+    tunerNote.textContent = name;
+    tunerFreq.textContent = freq.toFixed(1) + ' Hz';
+    renderStringTargets(freq);
+
+    if(Math.abs(cents) < 5){
+      setStatus('intune', 'afinado ✓');
+    } else if(cents < 0){
+      setStatus('flat', 'um pouco grave — aperte');
+    } else {
+      setStatus('sharp', 'um pouco agudo — afrouxe');
+    }
+    setNeedle(Math.max(-50, Math.min(50, cents)));
+  }
+
+  function setStatus(cls, text){
+    tunerStatus.className = 'tuner-status ' + cls;
+    tunerStatus.textContent = text;
+  }
+  function setNeedle(cents){
+    const angle = (cents/50) * 45; // -45 to 45 degrees
+    const needle = tunerNeedle();
+    if(needle) needle.setAttribute('transform', `rotate(${angle} 100 100)`);
+  }
+
+  function pitchLoop(){
+    if(!listening) return;
+    const buf = new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(buf);
+    const freq = autoCorrelate(buf, audioCtx.sampleRate);
+    updateTunerUI(freq);
+    rafId = requestAnimationFrame(pitchLoop);
+  }
+
+  async function startTuner(){
+    tunerError.textContent = '';
+    try{
+      mediaStream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false}});
+    }catch(e){
+      tunerError.textContent = 'Não foi possível acessar o microfone. Verifique as permissões do navegador e tente novamente.';
+      return;
+    }
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    const source = audioCtx.createMediaStreamSource(mediaStream);
+    source.connect(analyser);
+    listening = true;
+    micBtn.classList.add('listening');
+    micIcon.textContent = '⏸️';
+    micLabel.textContent = 'Parar microfone';
+    pitchLoop();
+  }
+
+  function stopTuner(){
+    listening = false;
+    if(rafId) cancelAnimationFrame(rafId);
+    if(mediaStream){ mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if(audioCtx){ audioCtx.close(); audioCtx = null; }
+    micBtn.classList.remove('listening');
+    micIcon.textContent = '🎙️';
+    micLabel.textContent = 'Ativar microfone';
+    tunerNote.textContent = '—';
+    tunerFreq.textContent = 'aguardando som…';
+    setStatus('idle','parado');
+    setNeedle(0);
+    renderStringTargets(null);
+  }
+
+  micBtn.addEventListener('click', () => {
+    if(listening) stopTuner(); else startTuner();
+  });
+
+})();
+</script>
+</body>
+</html>
