@@ -1142,15 +1142,15 @@ footer{
   renderAll();
 
   /* ============================================================
-     CIFRAS — busca real de letras via lyrics.ovh + acordes sugeridos
-     A API lyrics.ovh (https://github.com/NTag/lyrics.ovh) é aberta,
-     gratuita e sem necessidade de chave, mas só devolve a LETRA da
-     música. Não existe hoje uma API pública e estável que devolva
+     CIFRAS — busca real de letras via LRCLIB + acordes sugeridos
+     A LRCLIB (https://lrclib.net) é aberta, gratuita, sem chave, e a
+     própria busca já retorna a letra completa (evita uma segunda
+     requisição). Não existe hoje uma API pública e estável que devolva
      a cifra oficial (acordes posicionados) de uma gravação específica
      — por isso os acordes abaixo são uma SUGESTÃO de progressão
      harmônica simples para acompanhar a letra, não a cifra oficial.
   ============================================================ */
-  const LYRICS_API = 'https://api.lyrics.ovh';
+  const LYRICS_API = 'https://lrclib.net/api';
 
   // Progressões de acordes comuns (campo harmônico) usadas para sugestão.
   const PROGRESSION_POOLS = [
@@ -1185,9 +1185,7 @@ footer{
   }
 
   let lastResults = [];
-  const lyricsCache = new Map(); // cache de letras já buscadas (mais rapidez ao voltar pra mesma música)
   let currentSearchController = null;
-  let currentOpenController = null;
   let searchDebounceTimer = null;
 
   // Faz fetch com timeout, pra não ficar "pendurado" esperando o serviço externo
@@ -1205,12 +1203,12 @@ footer{
     }
   }
 
-  // A api.lyrics.ovh NÃO suporta CORS (confirmado na documentação oficial),
-  // então uma chamada direta do navegador sempre falha, em qualquer site.
-  // Por isso passamos sempre por um proxy que adiciona os cabeçalhos de CORS.
+  // Tenta a chamada direta primeiro (a LRCLIB costuma aceitar chamadas do
+  // navegador). Se algum provedor de rede/extensão bloquear mesmo assim,
+  // cai para um proxy que adiciona os cabeçalhos de CORS necessários.
   const CORS_PROXIES = [
+    (url) => url,
     (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
 
@@ -1229,21 +1227,6 @@ footer{
       }
     }
     throw lastErr || new Error('fetch-failed');
-  }
-
-  // Gera variações do nome (sem parênteses, sem "feat.", sem acentos) pra tentar
-  // de novo quando a busca exata falha — resolve boa parte dos erros ao abrir música.
-  function nameVariants(str){
-    const base = (str || '').trim();
-    const variants = new Set();
-    variants.add(base);
-    const noParens = base.replace(/[\(\[][^\)\]]*[\)\]]/g, '').trim();
-    if(noParens) variants.add(noParens);
-    const noFeat = noParens.replace(/\b(feat\.?|ft\.?|featuring|part\.?|com)\b.*$/i, '').trim();
-    if(noFeat) variants.add(noFeat);
-    const noAccents = noFeat.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-    if(noAccents) variants.add(noAccents);
-    return Array.from(variants).filter(Boolean);
   }
 
   function setSongAreaState(html){
@@ -1298,7 +1281,7 @@ footer{
       tile.innerHTML = `
         <p class="song-tile-title">${item.title}</p>
         <p class="song-tile-artist">${item.artist}</p>
-        <div class="song-tile-meta"><span class="tag">ver letra e acordes</span></div>
+        <div class="song-tile-meta"><span class="tag">${item.hasLyrics ? 'ver letra e acordes' : 'sem letra disponível'}</span></div>
       `;
       tile.addEventListener('click', () => openSong(item));
       grid.appendChild(tile);
@@ -1317,11 +1300,23 @@ footer{
 
     renderLoadingState(q);
     try{
-      const data = await fetchJsonWithFallback(`${LYRICS_API}/suggest/${encodeURIComponent(q)}`, {timeoutMs: 8000, signal: controller.signal});
-      const items = (data.data || []).map(d => ({
-        title: d.title,
-        artist: d.artist && d.artist.name ? d.artist.name : '',
-      })).filter(d => d.title);
+      const data = await fetchJsonWithFallback(`${LYRICS_API}/search?q=${encodeURIComponent(q)}`, {timeoutMs: 8000, signal: controller.signal});
+
+      // a LRCLIB já devolve a letra (plainLyrics) junto do resultado da busca,
+      // então guardamos tudo de uma vez — abrir a música depois é instantâneo
+      const seen = new Set();
+      const items = (Array.isArray(data) ? data : []).map(d => ({
+        title: d.trackName || d.name || '',
+        artist: d.artistName || '',
+        lyrics: d.plainLyrics || '',
+        hasLyrics: !!d.plainLyrics && !d.instrumental,
+      })).filter(d => {
+        if(!d.title) return false;
+        const key = (d.artist + '|' + d.title).toLowerCase();
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
 
       if(controller.signal.aborted) return; // já existe uma busca mais nova rodando
       lastResults = items;
@@ -1340,95 +1335,44 @@ footer{
     return raw.replace(/\[([^\]]+)\]/g, '<span class="chord">$1</span>');
   }
 
-  async function openSong(item){
+  // Abrir a música é instantâneo agora: a letra já veio junto da busca,
+  // não precisa de uma segunda chamada de rede (menos demora, menos erro).
+  function openSong(item){
     document.getElementById('song-list-view').style.display = 'none';
     document.getElementById('song-detail-view').style.display = 'block';
     const el = document.getElementById('song-detail-content');
-    el.innerHTML = `
-      <button class="back-link" id="back-to-list">← voltar para a busca</button>
-      <div class="search-state">
-        <div class="spinner"></div>
-        <p class="state-sub">Buscando a letra de "${item.title}"…</p>
-      </div>
-    `;
-    document.getElementById('back-to-list').addEventListener('click', closeSong);
     el.scrollIntoView({behavior:'smooth', block:'start'});
 
-    if(currentOpenController) currentOpenController.abort();
-    const controller = new AbortController();
-    currentOpenController = controller;
-
-    const cacheKey = (item.artist + '|' + item.title).toLowerCase();
-
-    try{
-      let lyrics = lyricsCache.get(cacheKey);
-
-      if(!lyrics){
-        // tenta variações do artista/título (sem parênteses, "feat.", acentos)
-        // porque a API costuma falhar com o nome "completo" vindo da busca
-        const artistVariants = nameVariants(item.artist);
-        const titleVariants = nameVariants(item.title);
-        let lastError = null;
-
-        outer:
-        for(const artist of artistVariants){
-          for(const title of titleVariants){
-            try{
-              const data = await fetchJsonWithFallback(
-                `${LYRICS_API}/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,
-                {timeoutMs: 8000, signal: controller.signal}
-              );
-              if(!data.lyrics){ lastError = new Error('no-lyrics'); continue; }
-              lyrics = data.lyrics;
-              break outer;
-            }catch(err){
-              if(err.name === 'AbortError') throw err;
-              lastError = err;
-            }
-          }
-        }
-
-        if(!lyrics) throw lastError || new Error('no-lyrics');
-        lyricsCache.set(cacheKey, lyrics);
-      }
-
-      if(controller.signal.aborted) return;
-
-      const {text, chordsUsed} = buildSuggestedChordLyrics(lyrics, item.artist + item.title);
-
-      el.innerHTML = `
-        <button class="back-link" id="back-to-list">← voltar para a busca</button>
-        <div class="song-view-head">
-          <div>
-            <h2 class="song-view-title">${item.title}</h2>
-            <p class="song-view-artist">${item.artist}</p>
-          </div>
-        </div>
-        <div class="chord-glossary">
-          ${chordsUsed.map(c => miniChordHTML(c) || `<span class="tag">${c}</span>`).join('')}
-        </div>
-        <p class="suggested-note">Os acordes acima são uma sugestão de progressão para acompanhar a letra, gerada por este app — não é a cifra oficial dessa gravação. Ajuste o tom e os acordes conforme o que você ouvir na música original.</p>
-        <div class="lyrics-block">${formatLyrics(text)}</div>
-        <p class="source-credit">Letra via <a href="https://lyrics.ovh" target="_blank" rel="noopener">lyrics.ovh</a></p>
-      `;
-      document.getElementById('back-to-list').addEventListener('click', closeSong);
-    }catch(err){
-      if(controller.signal.aborted) return;
-      const timedOut = err && err.name === 'AbortError';
+    if(!item.hasLyrics){
       el.innerHTML = `
         <button class="back-link" id="back-to-list">← voltar para a busca</button>
         <div class="search-state">
           <p class="state-title">Não encontramos a letra dessa música</p>
-          <p class="state-sub">${timedOut
-            ? 'O serviço de letras demorou demais para responder. Tente de novo em alguns instantes.'
-            : 'A fonte de letras pode não ter essa faixa, ou o serviço está instável agora. Tente outra música ou volte a buscar em alguns minutos.'}</p>
-          <button class="retry-btn" id="retry-open">Tentar de novo</button>
+          <p class="state-sub">Essa faixa não tem letra disponível na nossa fonte (pode ser instrumental ou simplesmente não estar na base). Tente outra música.</p>
         </div>
       `;
       document.getElementById('back-to-list').addEventListener('click', closeSong);
-      const retry = document.getElementById('retry-open');
-      if(retry) retry.addEventListener('click', () => openSong(item));
+      return;
     }
+
+    const {text, chordsUsed} = buildSuggestedChordLyrics(item.lyrics, item.artist + item.title);
+
+    el.innerHTML = `
+      <button class="back-link" id="back-to-list">← voltar para a busca</button>
+      <div class="song-view-head">
+        <div>
+          <h2 class="song-view-title">${item.title}</h2>
+          <p class="song-view-artist">${item.artist}</p>
+        </div>
+      </div>
+      <div class="chord-glossary">
+        ${chordsUsed.map(c => miniChordHTML(c) || `<span class="tag">${c}</span>`).join('')}
+      </div>
+      <p class="suggested-note">Os acordes acima são uma sugestão de progressão para acompanhar a letra, gerada por este app — não é a cifra oficial dessa gravação. Ajuste o tom e os acordes conforme o que você ouvir na música original.</p>
+      <div class="lyrics-block">${formatLyrics(text)}</div>
+      <p class="source-credit">Letra via <a href="https://lrclib.net" target="_blank" rel="noopener">LRCLIB</a></p>
+    `;
+    document.getElementById('back-to-list').addEventListener('click', closeSong);
   }
 
   function closeSong(){
